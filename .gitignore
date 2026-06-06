@@ -1,0 +1,29 @@
+# Ignore ludo-web folder (tracked in a separate Git repository)
+ludo-web/
+
+# C++ / CMake build outputs
+build/
+ludo-native/build/
+ludo-native/out/
+out/
+bin/
+**/CMakeFiles/
+**/CMakeCache.txt
+**/cmake_install.cmake
+**/Makefile
+
+# IDEs and Editors
+.vscode/
+.vs/
+.idea/
+*.suo
+*.user
+*.sln
+*.vcxproj
+*.filters
+CMakeUserPresets.json
+
+# OS files
+.DS_Store
+Thumbs.db
+ehthumbs.db
