@@ -1,0 +1,210 @@
+diff --git a/Source/src/game.cpp b/Source/src/game.cpp
+index b76a3a8..17706a7 100644
+--- a/Source/src/game.cpp
++++ b/Source/src/game.cpp
+@@ -12,6 +12,26 @@
+ #include <ctime>
+ #include <cmath>
+ 
++static void drawSparkleStar(float cx, float cy, float size) {
++    float r = size * 0.5f;
++    float ir = r * 0.22f; // inner radius
++    
++    Vector2 pts[8] = {
++        { cx, cy - r },
++        { cx + ir, cy - ir },
++        { cx + r, cy },
++        { cx + ir, cy + ir },
++        { cx, cy + r },
++        { cx - ir, cy + ir },
++        { cx - r, cy },
++        { cx - ir, cy - ir }
++    };
++    
++    for (int i = 0; i < 8; i++) {
++        DrawTriangle(Vector2{cx, cy}, pts[(i + 1) % 8], pts[i], WHITE);
++    }
++}
++
+ // Static allocations
+ GameScreenState LudoGame::screenState = SCREEN_MENU;
+ GameplaySubState LudoGame::subState = SUBSTATE_TURN_START;
+@@ -477,101 +497,87 @@ void LudoGame::draw() {
+         offsetY = boardOffsetY;
+     }
+ 
+-    // Premium background gradient decoration across the entire physical screen
+-    DrawRectangleGradientV(0, 0, W, H, Color{15, 23, 42, 255}, Color{30, 41, 59, 255}); // Slate 900 -> Slate 800
+-    
+-    // Draw ambient glows dynamically scaled
+-    DrawCircleGradient(offsetX + 200.0f * scaleFactor, offsetY + 100.0f * scaleFactor, 400.0f * scaleFactor, Color{34, 197, 94, 25}, Color{34, 197, 94, 0});
+-    DrawCircleGradient(offsetX + 900.0f * scaleFactor, offsetY + 500.0f * scaleFactor, 500.0f * scaleFactor, Color{59, 130, 246, 25}, Color{59, 130, 246, 0});
++    // Draw background
++    if (screenState == SCREEN_MENU) {
++        // Light cyan solid background
++        DrawRectangle(0, 0, W, H, Color{142, 219, 230, 255});
++        
++        // Draw faint decorative boards in the top-left and top-right corners
++        if (LudoBoard::isLoaded && LudoBoard::boardBgTexture.id != 0) {
++            float bgBoardSize = 250.0f * scaleFactor;
++            // Top-left
++            DrawTexturePro(LudoBoard::boardBgTexture, 
++                           Rectangle{0, 0, (float)LudoBoard::boardBgTexture.width, (float)LudoBoard::boardBgTexture.height}, 
++                           Rectangle{offsetX + 50.0f * scaleFactor, offsetY + 50.0f * scaleFactor, bgBoardSize, bgBoardSize}, 
++                           Vector2{0, 0}, 0.0f, ColorAlpha(WHITE, 0.06f));
++            // Top-right
++            DrawTexturePro(LudoBoard::boardBgTexture, 
++                           Rectangle{0, 0, (float)LudoBoard::boardBgTexture.width, (float)LudoBoard::boardBgTexture.height}, 
++                           Rectangle{offsetX + 800.0f * scaleFactor, offsetY + 50.0f * scaleFactor, bgBoardSize, bgBoardSize}, 
++                           Vector2{0, 0}, 0.0f, ColorAlpha(WHITE, 0.06f));
++        }
++    } else {
++        // Premium background gradient decoration across the entire physical screen for gameplay
++        DrawRectangleGradientV(0, 0, W, H, Color{15, 23, 42, 255}, Color{30, 41, 59, 255}); // Slate 900 -> Slate 800
++        
++        // Draw ambient glows dynamically scaled
++        DrawCircleGradient(offsetX + 200.0f * scaleFactor, offsetY + 100.0f * scaleFactor, 400.0f * scaleFactor, Color{34, 197, 94, 25}, Color{34, 197, 94, 0});
++        DrawCircleGradient(offsetX + 900.0f * scaleFactor, offsetY + 500.0f * scaleFactor, 500.0f * scaleFactor, Color{59, 130, 246, 25}, Color{59, 130, 246, 0});
++    }
+     
+     if (screenState == SCREEN_MENU) {
+-        // Draw Logo and Title
+-        float logoY = 60.0f;
+-        float logoX = 550.0f;
+-        float scaledLogoX = offsetX + logoX * scaleFactor;
+-        float scaledLogoY = offsetY + logoY * scaleFactor;
+-        DrawCircle(scaledLogoX, scaledLogoY + 40.0f * scaleFactor, 45.0f * scaleFactor, Color{245, 158, 11, 20});
+-        DrawPoly(Vector2{scaledLogoX, scaledLogoY + 40.0f * scaleFactor}, 6, 35.0f * scaleFactor, GetTime() * 10.0f, Color{245, 158, 11, 255});
+-        DrawPolyLinesEx(Vector2{scaledLogoX, scaledLogoY + 40.0f * scaleFactor}, 6, 35.0f * scaleFactor, GetTime() * 10.0f, 3.0f * scaleFactor, WHITE);
++        float logoY = 50.0f;
+         
+-        LudoUIWidget::drawTextWithShadow("Ludo Family", 550 - MeasureTextEx(LudoUIWidget::boldFont, "Ludo Family", 38, 1.0f).x/2.0f, logoY + 95, 38, Color{245, 158, 11, 255}, LudoUIWidget::boldFont);
+-        LudoUIWidget::drawTextWithShadow("Set up your cozy board game adventure", 550 - MeasureTextEx(LudoUIWidget::mainFont, "Set up your cozy board game adventure", 15, 1.0f).x/2.0f, logoY + 140, 15, Color{148, 163, 184, 255}, LudoUIWidget::mainFont);
++        // Draw Title "LUDO FAMILY"
++        LudoUIWidget::drawTextWithShadow("LUDO FAMILY", 550 - MeasureTextEx(LudoUIWidget::boldFont, "LUDO FAMILY", 44, 1.0f).x/2.0f, logoY + 30, 44, WHITE, LudoUIWidget::boldFont);
+         
+-        // Mode Selection box
+-        LudoUIWidget::drawTextWithShadow("Game Mode Selection", 250, logoY + 175, 16, WHITE, LudoUIWidget::boldFont);
++        // Mode Selection box label
++        LudoUIWidget::drawTextWithShadow("Game Mode Selection", 250, logoY + 110, 15, Color{30, 41, 59, 255}, LudoUIWidget::boldFont);
+         
+         // 2 Mode buttons/cards (VS AI vs Local Pass & Play)
+-        Rectangle modeVsAI = {250, logoY + 205, 290, 70};
+-        Rectangle modeLocal = {560, logoY + 205, 290, 70};
++        Rectangle modeVsAI = {250, logoY + 135, 290, 70};
++        Rectangle modeLocal = {560, logoY + 135, 290, 70};
+         
+-        bool vsAIClicked = LudoUIWidget::button(modeVsAI, "Vs Computer AI\nPlay against smart AI players", 
+-            (gameMode == "vs-ai" ? Color{30, 58, 138, 255} : Color{15, 23, 42, 255}), 
+-            Color{37, 99, 235, 255}, WHITE, 0.15f);
+-            
+-        bool localClicked = LudoUIWidget::button(modeLocal, "Local Pass & Play\nPlay with family on one screen", 
+-            (gameMode == "local" ? Color{30, 58, 138, 255} : Color{15, 23, 42, 255}), 
+-            Color{37, 99, 235, 255}, WHITE, 0.15f);
++        bool vsAIClicked = LudoUIWidget::modeButton(modeVsAI, "Vs Computer AI", "Play against smart AI players", (gameMode == "vs-ai"), 0);
++        bool localClicked = LudoUIWidget::modeButton(modeLocal, "Local Pass & Play", "Play with family on one screen", (gameMode == "local"), 1);
+             
+         if (vsAIClicked) {
+             gameMode = "vs-ai";
+-            playerConfigs[0] = {"Green", "ai-medium"};
+-            playerConfigs[1] = {"Yellow", "ai-medium"};
+-            playerConfigs[2] = {"Blue", "none"};
+-            playerConfigs[3] = {"Red", "human"};
++            playerConfigs[0].type = "ai-medium";
++            playerConfigs[1].type = "ai-medium";
++            playerConfigs[2].type = "none";
++            playerConfigs[3].type = "human";
+         }
+         if (localClicked) {
+             gameMode = "local";
+-            playerConfigs[0] = {"Green", "human"};
+-            playerConfigs[1] = {"Yellow", "human"};
+-            playerConfigs[2] = {"Blue", "none"};
+-            playerConfigs[3] = {"Red", "human"};
++            playerConfigs[0].type = "human";
++            playerConfigs[1].type = "human";
++            playerConfigs[2].type = "none";
++            playerConfigs[3].type = "human";
+         }
+         
+         // Configure Players Panel
+-        LudoUIWidget::drawTextWithShadow("Configure Players", 250, logoY + 295, 16, WHITE, LudoUIWidget::boldFont);
+-        
+-        Color playerRowsColors[4] = {
+-            Color{34, 197, 94, 255},  // Green
+-            Color{245, 158, 11, 255}, // Yellow
+-            Color{37, 99, 235, 255},  // Blue
+-            Color{239, 68, 68, 255}   // Red
+-        };
++        LudoUIWidget::drawTextWithShadow("Configure Players", 80, logoY + 230, 15, Color{30, 41, 59, 255}, LudoUIWidget::boldFont);
+         
++        // 4 Player Cards horizontally
+         for (int i = 0; i < 4; i++) {
+-            float ry = logoY + 325 + i * 50;
+-            // Draw row background card
+-            Rectangle cardRec = {
+-                offsetX + 250.0f * scaleFactor,
+-                offsetY + ry * scaleFactor,
+-                600.0f * scaleFactor,
+-                42.0f * scaleFactor
+-            };
+-            DrawRectangleRounded(cardRec, 0.15f, 4, Color{30, 41, 59, 150});
+-            DrawRectangleRoundedLines(cardRec, 0.15f, 4, 1.0f * scaleFactor, Color{51, 65, 85, 255});
+-            
+-            // Color dot
+-            DrawCircle(offsetX + 280.0f * scaleFactor, offsetY + (ry + 21.0f) * scaleFactor, 10.0f * scaleFactor, playerRowsColors[i]);
+-            
+-            // Name Textbox
+-            Rectangle tbRec = {310, ry + 6, 260, 30};
+-            LudoUIWidget::textBox(tbRec, playerConfigs[i].name, 12, isTextBoxActive[i], textCursorTick);
++            float px = 80.0f + i * 245.0f;
++            float py = logoY + 245.0f;
+             
+-            // Type dropdown selector
+-            Rectangle tsRec = {590, ry + 6, 230, 30};
+-            std::string tempType = playerConfigs[i].type;
+-            LudoUIWidget::typeSelector(tsRec, tempType);
+-            playerConfigs[i].type = tempType;
++            Rectangle cardRec = { px, py, 200, 185 };
++            LudoUIWidget::playerConfigCard(cardRec, i, playerConfigs[i].name, playerConfigs[i].type, isTextBoxActive[i], textCursorTick);
+         }
+         
+         // START ADVENTURE pulse button
+-        Rectangle startBtnRec = {400, logoY + 535, 300, 45};
+-        float pulse = 1.0f + sinf(GetTime() * 4.0f) * 0.02f;
+-        startBtnRec.width *= pulse;
+-        startBtnRec.height *= pulse;
+-        startBtnRec.x -= (startBtnRec.width - 300.0f) / 2.0f;
+-        startBtnRec.y -= (startBtnRec.height - 45.0f) / 2.0f;
++        Rectangle startBtnRec = {375, logoY + 440, 350, 50};
++        float pulse = 1.0f + sinf(GetTime() * 4.0f) * 0.015f;
++        Rectangle scaledStartBtnRec = startBtnRec;
++        scaledStartBtnRec.width *= pulse;
++        scaledStartBtnRec.height *= pulse;
++        scaledStartBtnRec.x -= (scaledStartBtnRec.width - startBtnRec.width) / 2.0f;
++        scaledStartBtnRec.y -= (scaledStartBtnRec.height - startBtnRec.height) / 2.0f;
+         
+-        bool startClicked = LudoUIWidget::button(startBtnRec, "START ADVENTURE", Color{239, 68, 68, 255}, Color{220, 38, 38, 255}, WHITE, 0.25f);
++        bool startClicked = LudoUIWidget::button(scaledStartBtnRec, "START ADVENTURE", Color{235, 87, 87, 255}, Color{220, 75, 75, 255}, WHITE, 0.2f);
+         if (startClicked) {
+             // Check that at least two players are active
+             int activeCnt = 0;
+@@ -580,15 +586,14 @@ void LudoGame::draw() {
+             }
+             
+             if (activeCnt < 2) {
+-                // Force activate another player
+                 playerConfigs[0].type = "ai-medium";
+-                if (playerConfigs[0].name.find("Player") != std::string::npos || playerConfigs[0].name.empty()) {
+-                    playerConfigs[0].name = "Green AI";
+-                }
+             }
+             start(gameMode);
+         }
+         
++        // Sparkle Star Decoration in bottom right
++        drawSparkleStar(offsetX + 1030.0f * scaleFactor, offsetY + 590.0f * scaleFactor, 30.0f * scaleFactor);
++        
+         return;
+     }
+     

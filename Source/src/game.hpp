@@ -36,6 +36,7 @@ struct PlayerSetup {
 class LudoGame {
 public:
     static GameScreenState screenState;
+    static GameScreenState prevScreenState;
     static GameplaySubState subState;
     static std::string gameMode; // "vs-ai", "local"
     

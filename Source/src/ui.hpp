@@ -29,4 +29,10 @@ public:
     
     // Utility to draw text with shadow
     static void drawTextWithShadow(const std::string& text, float posX, float posY, float fontSize, Color color, Font font);
+    
+    // New theme widgets
+    static bool modeButton(Rectangle rect, const std::string& title, const std::string& desc, bool selected, int modeType);
+    static bool toggleSwitch(Rectangle rect, bool& value, const std::string& label);
+    static void playerCard(Rectangle rect, int playerId, const std::string& name);
+    static void playerConfigCard(Rectangle rect, int playerId, std::string& name, std::string& type, bool& nameActive, int cursorTick);
 };
