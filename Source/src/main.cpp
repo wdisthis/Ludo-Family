@@ -10,7 +10,7 @@ int main() {
     SetConfigFlags(FLAG_WINDOW_HIGHDPI);
     
     // Premium 1100x650 viewport size for side panels alongside 600x600 board
-    InitWindow(1100, 650, "Ludo Cozy Club - Premium Family Board Game");
+    InitWindow(1100, 650, "Ludo Family");
     SetTargetFPS(60);
     
     // Set window resizeable to allow sizing window to match fullscreen aspect changes

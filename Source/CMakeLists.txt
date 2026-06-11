@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
-project(LudoCozyClub CXX)
+project(LudoFamily CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -34,23 +34,23 @@ set(SOURCES
     src/game.cpp
 )
 
-add_executable(LudoCozyClub ${SOURCES})
+add_executable(LudoFamily ${SOURCES})
 
 # Target linking
-target_link_libraries(LudoCozyClub PRIVATE raylib)
+target_link_libraries(LudoFamily PRIVATE raylib)
 
 if(WIN32)
     # Link required Windows subsystems
-    target_link_libraries(LudoCozyClub PRIVATE winmm gdi32 opengl32)
+    target_link_libraries(LudoFamily PRIVATE winmm gdi32 opengl32)
     
     # Hide the cmd console window in release builds
     # For debugging, we can keep it open or comment it out
-    # set_target_properties(LudoCozyClub PROPERTIES WIN32_EXECUTABLE TRUE)
+    # set_target_properties(LudoFamily PROPERTIES WIN32_EXECUTABLE TRUE)
 endif()
 
 # Post-build action: Copy assets to the executable directory
-add_custom_command(TARGET LudoCozyClub POST_BUILD
+add_custom_command(TARGET LudoFamily POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${CMAKE_CURRENT_SOURCE_DIR}/assets
-    $<TARGET_FILE_DIR:LudoCozyClub>/assets
+    $<TARGET_FILE_DIR:LudoFamily>/assets
 )

@@ -1,5 +1,6 @@
 #include "ui.hpp"
 #include <iostream>
+#include <cmath>
 #include "game.hpp"
 
 Font LudoUIWidget::mainFont;
@@ -15,9 +16,9 @@ void LudoUIWidget::initFonts() {
         isFontLoaded = true;
         // Generate mipmaps for smooth scaling down
         GenTextureMipmaps(&mainFont.texture);
-        SetTextureFilter(mainFont.texture, TEXTURE_FILTER_BILINEAR);
+        SetTextureFilter(mainFont.texture, TEXTURE_FILTER_TRILINEAR);
         GenTextureMipmaps(&boldFont.texture);
-        SetTextureFilter(boldFont.texture, TEXTURE_FILTER_BILINEAR);
+        SetTextureFilter(boldFont.texture, TEXTURE_FILTER_TRILINEAR);
     } else {
         std::cout << "Falling back to default Raylib font." << std::endl;
         mainFont = GetFontDefault();
@@ -78,8 +79,8 @@ bool LudoUIWidget::button(Rectangle rect, const std::string& text, Color baseCol
     float fontSize = (isFontLoaded ? 18.0f : 10.0f) * scale * LudoGame::scaleFactor;
     Vector2 textSize = MeasureTextEx(isFontLoaded ? boldFont : mainFont, text.c_str(), fontSize, 1.0f);
     Vector2 textPos = {
-        scaledDrawRect.x + (scaledDrawRect.width - textSize.x) / 2.0f,
-        scaledDrawRect.y + (scaledDrawRect.height - textSize.y) / 2.0f
+        roundf(scaledDrawRect.x + (scaledDrawRect.width - textSize.x) / 2.0f),
+        roundf(scaledDrawRect.y + (scaledDrawRect.height - textSize.y) / 2.0f)
     };
     
     DrawTextEx(isFontLoaded ? boldFont : mainFont, text.c_str(), textPos, fontSize, 1.0f, textColor);
@@ -112,8 +113,8 @@ bool LudoUIWidget::iconButton(Rectangle rect, const char* symbol, bool active) {
     float fontSize = (isFontLoaded ? 18.0f : 10.0f) * LudoGame::scaleFactor;
     Vector2 textSize = MeasureTextEx(mainFont, symbol, fontSize, 1.0f);
     Vector2 textPos = {
-        scaledRect.x + (scaledRect.width - textSize.x) / 2.0f,
-        scaledRect.y + (scaledRect.height - textSize.y) / 2.0f
+        roundf(scaledRect.x + (scaledRect.width - textSize.x) / 2.0f),
+        roundf(scaledRect.y + (scaledRect.height - textSize.y) / 2.0f)
     };
     DrawTextEx(mainFont, symbol, textPos, fontSize, 1.0f, WHITE);
     
@@ -159,13 +160,22 @@ void LudoUIWidget::textBox(Rectangle rect, std::string& text, int maxChars, bool
     
     // Draw text inside
     float fontSize = (isFontLoaded ? 16.0f : 10.0f) * LudoGame::scaleFactor;
-    Vector2 textPos = { scaledRect.x + 10 * LudoGame::scaleFactor, scaledRect.y + (scaledRect.height - fontSize) / 2.0f };
+    Vector2 textPos = { 
+        roundf(scaledRect.x + 10 * LudoGame::scaleFactor), 
+        roundf(scaledRect.y + (scaledRect.height - fontSize) / 2.0f) 
+    };
     DrawTextEx(mainFont, text.c_str(), textPos, fontSize, 1.0f, WHITE);
     
     // Draw cursor
     if (active && (cursorTick / 30) % 2 == 0) {
         float textWidth = MeasureTextEx(mainFont, text.c_str(), fontSize, 1.0f).x;
-        DrawRectangle(scaledRect.x + 12 * LudoGame::scaleFactor + textWidth, scaledRect.y + (scaledRect.height - fontSize) / 2.0f, 2.0f * LudoGame::scaleFactor, fontSize, Color{59, 130, 246, 255});
+        DrawRectangle(
+            roundf(scaledRect.x + 12 * LudoGame::scaleFactor + textWidth), 
+            roundf(scaledRect.y + (scaledRect.height - fontSize) / 2.0f), 
+            roundf(2.0f * LudoGame::scaleFactor), 
+            roundf(fontSize), 
+            Color{59, 130, 246, 255}
+        );
     }
 }
 
@@ -215,8 +225,8 @@ void LudoUIWidget::typeSelector(Rectangle rect, std::string& selectedType) {
     float fontSize = (isFontLoaded ? 15.0f : 10.0f) * LudoGame::scaleFactor;
     Vector2 textSize = MeasureTextEx(boldFont, dispText.c_str(), fontSize, 1.0f);
     Vector2 textPos = {
-        scaledRect.x + (scaledRect.width - textSize.x) / 2.0f,
-        scaledRect.y + (scaledRect.height - textSize.y) / 2.0f
+        roundf(scaledRect.x + (scaledRect.width - textSize.x) / 2.0f),
+        roundf(scaledRect.y + (scaledRect.height - textSize.y) / 2.0f)
     };
     DrawTextEx(boldFont, dispText.c_str(), textPos, fontSize, 1.0f, WHITE);
 }
@@ -233,7 +243,10 @@ float LudoUIWidget::slider(Rectangle rect, const std::string& labelText, float v
     
     // Draw label
     float fontSize = (isFontLoaded ? 14.0f : 10.0f) * LudoGame::scaleFactor;
-    DrawTextEx(mainFont, labelText.c_str(), Vector2{scaledRect.x, scaledRect.y - 18 * LudoGame::scaleFactor}, fontSize, 1.0f, Color{148, 163, 184, 255});
+    DrawTextEx(mainFont, labelText.c_str(), Vector2{
+        roundf(scaledRect.x), 
+        roundf(scaledRect.y - 18 * LudoGame::scaleFactor)
+    }, fontSize, 1.0f, Color{148, 163, 184, 255});
     
     // Draw bar background
     DrawRectangleRounded(scaledRect, 0.5f, 4, Color{30, 41, 59, 255});
@@ -262,11 +275,11 @@ float LudoUIWidget::slider(Rectangle rect, const std::string& labelText, float v
 }
 
 void LudoUIWidget::drawTextWithShadow(const std::string& text, float posX, float posY, float fontSize, Color color, Font font) {
-    float scaledX = LudoGame::offsetX + posX * LudoGame::scaleFactor;
-    float scaledY = LudoGame::offsetY + posY * LudoGame::scaleFactor;
+    float scaledX = roundf(LudoGame::offsetX + posX * LudoGame::scaleFactor);
+    float scaledY = roundf(LudoGame::offsetY + posY * LudoGame::scaleFactor);
     float scaledSize = fontSize * LudoGame::scaleFactor;
     
     // Offset shadow in physical space
-    DrawTextEx(font, text.c_str(), Vector2{scaledX + 2 * LudoGame::scaleFactor, scaledY + 2 * LudoGame::scaleFactor}, scaledSize, 1.0f, ColorAlpha(BLACK, 0.3f));
+    DrawTextEx(font, text.c_str(), Vector2{roundf(scaledX + 2.0f * LudoGame::scaleFactor), roundf(scaledY + 2.0f * LudoGame::scaleFactor)}, scaledSize, 1.0f, ColorAlpha(BLACK, 0.3f));
     DrawTextEx(font, text.c_str(), Vector2{scaledX, scaledY}, scaledSize, 1.0f, color);
 }

@@ -494,7 +494,7 @@ void LudoGame::draw() {
         DrawPoly(Vector2{scaledLogoX, scaledLogoY + 40.0f * scaleFactor}, 6, 35.0f * scaleFactor, GetTime() * 10.0f, Color{245, 158, 11, 255});
         DrawPolyLinesEx(Vector2{scaledLogoX, scaledLogoY + 40.0f * scaleFactor}, 6, 35.0f * scaleFactor, GetTime() * 10.0f, 3.0f * scaleFactor, WHITE);
         
-        LudoUIWidget::drawTextWithShadow("Ludo Cozy Club", 550 - MeasureTextEx(LudoUIWidget::boldFont, "Ludo Cozy Club", 38, 1.0f).x/2.0f, logoY + 95, 38, Color{245, 158, 11, 255}, LudoUIWidget::boldFont);
+        LudoUIWidget::drawTextWithShadow("Ludo Family", 550 - MeasureTextEx(LudoUIWidget::boldFont, "Ludo Family", 38, 1.0f).x/2.0f, logoY + 95, 38, Color{245, 158, 11, 255}, LudoUIWidget::boldFont);
         LudoUIWidget::drawTextWithShadow("Set up your cozy board game adventure", 550 - MeasureTextEx(LudoUIWidget::mainFont, "Set up your cozy board game adventure", 15, 1.0f).x/2.0f, logoY + 140, 15, Color{148, 163, 184, 255}, LudoUIWidget::mainFont);
         
         // Mode Selection box
@@ -695,7 +695,7 @@ void LudoGame::draw() {
     DrawRectangleRoundedLines(leftDiceRec, 0.15f, 4, 1.0f * scaleFactor, Color{51, 65, 85, 255});
     
     // Inside left dice container:
-    DrawTextEx(LudoUIWidget::mainFont, "CURRENT TURN", Vector2{offsetX + 30.0f * scaleFactor, offsetY + 400.0f * scaleFactor}, 10.0f * scaleFactor, 1.0f, Color{148, 163, 184, 255});
+    DrawTextEx(LudoUIWidget::mainFont, "CURRENT TURN", Vector2{roundf(offsetX + 30.0f * scaleFactor), roundf(offsetY + 400.0f * scaleFactor)}, 10.0f * scaleFactor, 1.0f, Color{148, 163, 184, 255});
     
     if (isLeftPlayer) {
         std::string colorName = players[activePlayerIndex].color;
@@ -760,8 +760,8 @@ void LudoGame::draw() {
             float fs = 18.0f * scaleFactor;
             Vector2 textSz = MeasureTextEx(LudoUIWidget::boldFont, numStr.c_str(), fs, 1.0f);
             DrawTextEx(LudoUIWidget::boldFont, numStr.c_str(), Vector2{
-                offsetX + dicePosLeft.x * scaleFactor - textSz.x/2.0f, 
-                offsetY + dicePosLeft.y * scaleFactor - textSz.y/2.0f
+                roundf(offsetX + dicePosLeft.x * scaleFactor - textSz.x/2.0f), 
+                roundf(offsetY + dicePosLeft.y * scaleFactor - textSz.y/2.0f)
             }, fs, 1.0f, slateDark);
         }
     }
@@ -818,7 +818,7 @@ void LudoGame::draw() {
         50.0f * scaleFactor
     };
     DrawRectangleRounded(turnBannerRec, 0.15f, 4, Color{30, 41, 59, 255});
-    DrawTextEx(LudoUIWidget::mainFont, "CURRENT TURN", Vector2{offsetX + 880.0f * scaleFactor, offsetY + 71.0f * scaleFactor}, 10.0f * scaleFactor, 1.0f, Color{148, 163, 184, 255});
+    DrawTextEx(LudoUIWidget::mainFont, "CURRENT TURN", Vector2{roundf(offsetX + 880.0f * scaleFactor), roundf(offsetY + 71.0f * scaleFactor)}, 10.0f * scaleFactor, 1.0f, Color{148, 163, 184, 255});
     
     if (!isLeftPlayer) {
         std::string colorName = players[activePlayerIndex].color;
@@ -894,8 +894,8 @@ void LudoGame::draw() {
             float fs = 24.0f * scaleFactor;
             Vector2 textSz = MeasureTextEx(LudoUIWidget::boldFont, numStr.c_str(), fs, 1.0f);
             DrawTextEx(LudoUIWidget::boldFont, numStr.c_str(), Vector2{
-                offsetX + dicePosRight.x * scaleFactor - textSz.x/2.0f, 
-                offsetY + dicePosRight.y * scaleFactor - textSz.y/2.0f
+                roundf(offsetX + dicePosRight.x * scaleFactor - textSz.x/2.0f), 
+                roundf(offsetY + dicePosRight.y * scaleFactor - textSz.y/2.0f)
             }, fs, 1.0f, slateDark);
         }
     }
@@ -939,8 +939,8 @@ void LudoGame::draw() {
     for (size_t i = 0; i < matchLogs.size(); i++) {
         float fs = 11.5f * scaleFactor;
         Vector2 textPos = {
-            offsetX + (870.0f + 15.0f) * scaleFactor,
-            offsetY + logY * scaleFactor
+            roundf(offsetX + (870.0f + 15.0f) * scaleFactor),
+            roundf(offsetY + logY * scaleFactor)
         };
         DrawTextEx(LudoUIWidget::mainFont, matchLogs[i].message.c_str(), textPos, fs, 1.0f, matchLogs[i].color);
         logY += 19.5f;
