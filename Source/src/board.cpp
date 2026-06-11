@@ -14,36 +14,6 @@ int LudoBoard::currentBoardTextureSize = 0;
 std::vector<LudoEffectParticle> LudoBoard::particles;
 std::vector<LudoRingEffect> LudoBoard::ringEffects;
 
-static void DrawShield(float x, float y, float size, Color color) {
-    // Draws a beautiful shield shape using points
-    float w = size * 0.8f;
-    float h = size * 0.9f;
-    
-    // Outer outline shadow
-    DrawTriangle(Vector2{x, y - h/2.0f}, Vector2{x - w/2.0f, y - h/4.0f}, Vector2{x + w/2.0f, y - h/4.0f}, ColorAlpha(BLACK, 0.2f));
-    DrawRectanglePro(Rectangle{x - w/2.0f, y - h/4.0f, w, h/2.0f}, Vector2{0, 0}, 0.0f, ColorAlpha(BLACK, 0.2f));
-    DrawTriangle(Vector2{x - w/2.0f, y + h/4.0f}, Vector2{x, y + h/2.0f + 1}, Vector2{x + w/2.0f, y + h/4.0f}, ColorAlpha(BLACK, 0.2f));
-    
-    // Main shield body (offset slightly)
-    DrawTriangle(Vector2{x, y - h/2.0f}, Vector2{x - w/2.0f, y - h/4.0f}, Vector2{x + w/2.0f, y - h/4.0f}, color);
-    DrawRectanglePro(Rectangle{x - w/2.0f, y - h/4.0f, w, h/2.0f}, Vector2{0, 0}, 0.0f, color);
-    DrawTriangle(Vector2{x - w/2.0f, y + h/4.0f}, Vector2{x, y + h/2.0f}, Vector2{x + w/2.0f, y + h/4.0f}, color);
-    
-    // Glossy light shield inlay
-    Color inlayCol = Color{241, 245, 249, 230};
-    float iw = w * 0.7f;
-    float ih = h * 0.7f;
-    DrawTriangle(Vector2{x, y - ih/2.0f}, Vector2{x - iw/2.0f, y - ih/4.0f}, Vector2{x + iw/2.0f, y - ih/4.0f}, inlayCol);
-    DrawRectanglePro(Rectangle{x - iw/2.0f, y - ih/4.0f, iw, ih/2.0f}, Vector2{0, 0}, 0.0f, inlayCol);
-    DrawTriangle(Vector2{x - iw/2.0f, y + ih/4.0f}, Vector2{x, y + ih/2.0f}, Vector2{x + iw/2.0f, y + ih/4.0f}, inlayCol);
-    
-    // Border line
-    Color slateBorder = Color{71, 85, 105, 255};
-    DrawTriangleLines(Vector2{x, y - h/2.0f}, Vector2{x - w/2.0f, y - h/4.0f}, Vector2{x + w/2.0f, y - h/4.0f}, slateBorder);
-    DrawLineEx(Vector2{x - w/2.0f, y - h/4.0f}, Vector2{x - w/2.0f, y + h/4.0f}, 1.5f, slateBorder);
-    DrawLineEx(Vector2{x + w/2.0f, y - h/4.0f}, Vector2{x + w/2.0f, y + h/4.0f}, 1.5f, slateBorder);
-    DrawTriangleLines(Vector2{x - w/2.0f, y + h/4.0f}, Vector2{x, y + h/2.0f}, Vector2{x + w/2.0f, y + h/4.0f}, slateBorder);
-}
 
 void LudoBoard::init() {
     boardBgTexture.id = 0;
@@ -190,142 +160,7 @@ void LudoBoard::drawBoardBackground(float startX, float startY, float boardSize)
                        Rectangle{0.0f, 0.0f, (float)boardBgTexture.width, (float)boardBgTexture.height}, 
                        Rectangle{startX, startY, boardSize, boardSize}, 
                        Vector2{0.0f, 0.0f}, 0.0f, WHITE);
-        // Draw border
-        DrawRectangleLinesEx(Rectangle{startX, startY, boardSize, boardSize}, 4.0f, Color{30, 41, 59, 255});
-        return;
     }
-    
-    float CS = boardSize / 15.0f;
-    
-    // Define premium palette colors
-    Color greenCol = Color{34, 197, 94, 255};   // Green
-    Color yellowCol = Color{245, 158, 11, 255}; // Yellow
-    Color blueCol = Color{37, 99, 235, 255};   // Blue
-    Color redCol = Color{239, 68, 68, 255};     // Red
-    
-    Color slateDark = Color{30, 41, 59, 255};
-    Color offWhite = Color{248, 250, 252, 255};
-    Color socketBg = Color{226, 232, 240, 255};
-    
-    // 1. Draw outer frame background
-    DrawRectangle(startX, startY, boardSize, boardSize, WHITE);
-    
-    // 2. Draw Yard bases
-    DrawRectangle(startX, startY, 6 * CS, 6 * CS, greenCol);
-    DrawRectangle(startX + 9 * CS, startY, 6 * CS, 6 * CS, yellowCol);
-    DrawRectangle(startX, startY + 9 * CS, 6 * CS, 6 * CS, redCol);
-    DrawRectangle(startX + 9 * CS, startY + 9 * CS, 6 * CS, 6 * CS, blueCol);
-    
-    // 3. Draw inner cards in yards
-    DrawRectangleRounded(Rectangle{startX + CS, startY + CS, 4 * CS, 4 * CS}, 0.15f, 4, offWhite);
-    DrawRectangleRounded(Rectangle{startX + 10 * CS, startY + CS, 4 * CS, 4 * CS}, 0.15f, 4, offWhite);
-    DrawRectangleRounded(Rectangle{startX + CS, startY + 10 * CS, 4 * CS, 4 * CS}, 0.15f, 4, offWhite);
-    DrawRectangleRounded(Rectangle{startX + 10 * CS, startY + 10 * CS, 4 * CS, 4 * CS}, 0.15f, 4, offWhite);
-    
-    // 4. Draw base sockets
-    int baseCells[4][4][2] = {
-        {{2, 2}, {4, 2}, {2, 4}, {4, 4}}, // Green
-        {{11, 2}, {13, 2}, {11, 4}, {13, 4}}, // Yellow
-        {{2, 11}, {4, 11}, {2, 13}, {4, 13}}, // Red
-        {{11, 11}, {13, 11}, {11, 13}, {13, 13}}  // Blue
-    };
-    
-    for (int p = 0; p < 4; p++) {
-        for (int s = 0; s < 4; s++) {
-            int gx = baseCells[p][s][0];
-            int gy = baseCells[p][s][1];
-            Vector2 sPos = getScreenPos(startX, startY, boardSize, gx, gy);
-            DrawCircle(sPos.x, sPos.y, CS * 0.5f - 4, socketBg);
-            DrawCircleLines(sPos.x, sPos.y, CS * 0.5f - 4, ColorAlpha(BLACK, 0.15f));
-            DrawCircle(sPos.x, sPos.y, 6.0f, ColorAlpha(BLACK, 0.08f));
-        }
-    }
-    
-    // 5. Draw grid cells
-    // Top track
-    for (int r = 0; r < 6; r++) {
-        for (int c = 6; c <= 8; c++) {
-            Vector2 cellPos = getScreenPos(startX, startY, boardSize, c, r);
-            Color fill = WHITE;
-            if (c == 7 && r >= 1) fill = yellowCol; // Home path
-            else if (c == 8 && r == 1) fill = yellowCol; // Start point
-            
-            DrawRectangle(cellPos.x, cellPos.y, CS, CS, fill);
-            DrawRectangleLines(cellPos.x, cellPos.y, CS, CS, Color{226, 232, 240, 255}); // Slate 200 gridlines
-        }
-    }
-    
-    // Left track
-    for (int r = 6; r <= 8; r++) {
-        for (int c = 0; c < 6; c++) {
-            Vector2 cellPos = getScreenPos(startX, startY, boardSize, c, r);
-            Color fill = WHITE;
-            if (r == 7 && c >= 1) fill = greenCol;
-            else if (r == 6 && c == 1) fill = greenCol;
-            
-            DrawRectangle(cellPos.x, cellPos.y, CS, CS, fill);
-            DrawRectangleLines(cellPos.x, cellPos.y, CS, CS, Color{226, 232, 240, 255});
-        }
-    }
-    
-    // Bottom track
-    for (int r = 9; r < 15; r++) {
-        for (int c = 6; c <= 8; c++) {
-            Vector2 cellPos = getScreenPos(startX, startY, boardSize, c, r);
-            Color fill = WHITE;
-            if (c == 7 && r <= 13) fill = redCol;
-            else if (c == 6 && r == 13) fill = redCol;
-            
-            DrawRectangle(cellPos.x, cellPos.y, CS, CS, fill);
-            DrawRectangleLines(cellPos.x, cellPos.y, CS, CS, Color{226, 232, 240, 255});
-        }
-    }
-    
-    // Right track
-    for (int r = 6; r <= 8; r++) {
-        for (int c = 9; c < 15; c++) {
-            Vector2 cellPos = getScreenPos(startX, startY, boardSize, c, r);
-            Color fill = WHITE;
-            if (r == 7 && c <= 13) fill = blueCol;
-            else if (r == 8 && c == 13) fill = blueCol;
-            
-            DrawRectangle(cellPos.x, cellPos.y, CS, CS, fill);
-            DrawRectangleLines(cellPos.x, cellPos.y, CS, CS, Color{226, 232, 240, 255});
-        }
-    }
-    
-    // 6. Draw central finished home wedges
-    Vector2 center = {startX + 7.5f * CS, startY + 7.5f * CS};
-    // Green (left)
-    DrawTriangle(center, Vector2{startX + 6*CS, startY + 9*CS}, Vector2{startX + 6*CS, startY + 6*CS}, greenCol);
-    DrawTriangleLines(center, Vector2{startX + 6*CS, startY + 9*CS}, Vector2{startX + 6*CS, startY + 6*CS}, slateDark);
-    
-    // Yellow (top)
-    DrawTriangle(center, Vector2{startX + 6*CS, startY + 6*CS}, Vector2{startX + 9*CS, startY + 6*CS}, yellowCol);
-    DrawTriangleLines(center, Vector2{startX + 6*CS, startY + 6*CS}, Vector2{startX + 9*CS, startY + 6*CS}, slateDark);
-    
-    // Blue (right)
-    DrawTriangle(center, Vector2{startX + 9*CS, startY + 6*CS}, Vector2{startX + 9*CS, startY + 9*CS}, blueCol);
-    DrawTriangleLines(center, Vector2{startX + 9*CS, startY + 6*CS}, Vector2{startX + 9*CS, startY + 9*CS}, slateDark);
-    
-    // Red (bottom)
-    DrawTriangle(center, Vector2{startX + 9*CS, startY + 9*CS}, Vector2{startX + 6*CS, startY + 9*CS}, redCol);
-    DrawTriangleLines(center, Vector2{startX + 9*CS, startY + 9*CS}, Vector2{startX + 6*CS, startY + 9*CS}, slateDark);
-    
-    // 7. Draw safe zone checkpoints with custom shield outline
-    // Safe cells coordinates
-    DrawShield(startX + 6*CS + CS/2.0f, startY + 13*CS + CS/2.0f, CS, redCol);     // Red Start
-    DrawShield(startX + 1*CS + CS/2.0f, startY + 6*CS + CS/2.0f, CS, greenCol);    // Green Start
-    DrawShield(startX + 8*CS + CS/2.0f, startY + 1*CS + CS/2.0f, CS, yellowCol);   // Yellow Start
-    DrawShield(startX + 13*CS + CS/2.0f, startY + 8*CS + CS/2.0f, CS, blueCol);    // Blue Start
-    
-    DrawShield(startX + 8*CS + CS/2.0f, startY + 12*CS + CS/2.0f, CS, redCol);     // Neutral Red safe
-    DrawShield(startX + 2*CS + CS/2.0f, startY + 8*CS + CS/2.0f, CS, greenCol);    // Neutral Green safe
-    DrawShield(startX + 6*CS + CS/2.0f, startY + 2*CS + CS/2.0f, CS, yellowCol);   // Neutral Yellow safe
-    DrawShield(startX + 12*CS + CS/2.0f, startY + 6*CS + CS/2.0f, CS, blueCol);    // Neutral Blue safe
-    
-    // 8. Draw thick outer frame
-    DrawRectangleLinesEx(Rectangle{startX, startY, boardSize, boardSize}, 4.0f, slateDark);
 }
 
 void LudoBoard::draw(const std::vector<LudoPlayer>& players, int activePlayerId, const std::vector<int>& clickableTokenIds, int selectedTokenId) {
@@ -335,7 +170,8 @@ void LudoBoard::draw(const std::vector<LudoPlayer>& players, int activePlayerId,
     float startY = LudoGame::offsetY + 25.0f * LudoGame::scaleFactor;
     
     // Dynamically rasterize SVG to match the current screen size for perfect crispness
-    int targetSize = (int)boardSize;
+    Vector2 dpiScale = GetWindowScaleDPI();
+    int targetSize = (int)(boardSize * dpiScale.y);
     if (targetSize < 10) targetSize = 600;
     
     if (boardBgTexture.id == 0 || currentBoardTextureSize != targetSize) {
@@ -348,6 +184,7 @@ void LudoBoard::draw(const std::vector<LudoPlayer>& players, int activePlayerId,
             UnloadImage(boardImg);
             currentBoardTextureSize = targetSize;
         } else {
+            TraceLog(LOG_WARNING, "BOARD: Failed to load assets/images/board.svg!");
             boardBgTexture.id = 0;
             currentBoardTextureSize = 0;
         }
