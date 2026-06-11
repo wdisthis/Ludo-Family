@@ -1,5 +1,6 @@
 # Ignore ludo-web folder (tracked in a separate Git repository)
 ludo-web/
+Source/5.0.tar.gz
 
 # C++ / CMake build outputs
 build/
